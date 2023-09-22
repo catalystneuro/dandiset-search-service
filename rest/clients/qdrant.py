@@ -4,7 +4,7 @@ from qdrant_client.http.models import UpdateStatus
 from concurrent.futures import ThreadPoolExecutor, wait
 
 from core.settings import settings
-from .openai import get_embedding_simple
+from clients.openai import OpenaiClient
 
 
 class QdrantClient:
@@ -20,11 +20,12 @@ class QdrantClient:
         self.port = port
         self.collection_name = collection_name
         self.vector_size = vector_size
-        self.client = QdrantClient(self.host, port=self.port)
+        self.qdrant_client = QdrantClient(self.host, port=self.port)
+        self.openai_client = OpenaiClient()
 
 
     def create_collection(self):
-        self.client.recreate_collection(
+        self.qdrant_client.recreate_collection(
             collection_name=self.collection_name,
             vectors_config=VectorParams(size=self.vector_size, distance=Distance.DOT),
         )   
@@ -51,12 +52,12 @@ class QdrantClient:
 
 
     def get_collection_info(self):
-        return self.client.get_collection(collection_name=self.collection_name).dict()
+        return self.qdrant_client.get_collection(collection_name=self.collection_name).dict()
 
 
     def query_similar_items(self, query: str, top_k: int=10):
-        query_vector = get_embedding_simple(query)
-        search_result = self.client.search(
+        query_vector = self.openai_client.get_embedding_simple(query)
+        search_result = self.qdrant_client.search(
             collection_name=self.collection_name,
             query_vector=query_vector,
             limit=top_k,

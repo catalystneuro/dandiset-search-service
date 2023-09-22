@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     QDRANT_COLLECTION_NAME: str = os.environ.get('QDRANT_COLLECTION_NAME', "dandi_collection")
     QDRANT_VECTOR_SIZE: int = int(os.environ.get('QDRANT_VECTOR_SIZE', 1536))
 
+    OPENAI_API_KEY: str = os.environ.get('OPENAI_API_KEY', None)
+
+    DANDI_API_KEY: str = os.environ.get('DANDI_API_KEY', None)
+
 
 class DevSettings(Settings):
     SERVER_HOST: str = "0.0.0.0"

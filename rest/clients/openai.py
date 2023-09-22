@@ -6,19 +6,17 @@ from pathlib import Path
 import json
 import uuid
 import openai
-import os
 
-from .dandi import get_dandiset_metadata, collect_relevant_metadata
+from core.settings import settings
+from clients.dandi import DandiClient
 
 
 class OpenaiClient:
 
-    def __init__(self, model: str = "gpt-3.5-turbo-0613"):
+    def __init__(self):
+        openai.api_key = settings.OPENAI_API_KEY
+        self.dandi_client = DandiClient()
         self.embeddings_client = OpenAIEmbeddings()
-        self.chat_client = ChatOpenAI(
-            model=model,
-            temperature=0
-        )
 
 
     def get_embedding_simple(self, text: str) -> list:
@@ -130,7 +128,7 @@ class OpenaiClient:
         return all_qdrant_ponits
 
 
-    def keywords_extraction(self, user_input: str):
+    def keywords_extraction(self, user_input: str, model: str = "gpt-3.5-turbo"):
         schema = {
             "properties": {
                 "species": {
@@ -168,7 +166,11 @@ class OpenaiClient:
             },
             "required": [],
         }
-        chain = create_extraction_chain(schema, self.chat_client)
+        llm = ChatOpenAI(
+            model=model,
+            temperature=0
+        )
+        chain = create_extraction_chain(schema, llm)
         return chain.run(user_input)
 
 
@@ -185,8 +187,8 @@ class OpenaiClient:
         for r in similarity_results:
             dandiset_id = r[0].split("/")[0].split("DANDI:")[1]
             score = r[1]
-            m = get_dandiset_metadata(dandiset_id=dandiset_id)
-            m2 = collect_relevant_metadata(metadata_list=[m])[0]
+            m = self.dandi_client.get_dandiset_metadata(dandiset_id=dandiset_id)
+            m2 = self.dandi_client.collect_relevant_metadata(metadata_list=[m])[0]
             m2["relevance_score"] = f"relevance score: {score}"
             text = ""
             for k, v in m2.items():
@@ -202,7 +204,6 @@ class OpenaiClient:
 
 
     def get_llm_chat_answer(self, prompt: str, system_prompt: str = None, model: str = "gpt-3.5-turbo"):
-        openai.api_key = os.getenv("OPENAI_API_KEY")
         if system_prompt is None:
             system_prompt = "You are a helpful neuroscience research assistant, you give brief and informative suggestions to users questions, always based on a list of relevant reference dandi sets."
         completion = openai.ChatCompletion.create(
