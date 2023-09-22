@@ -1,12 +1,7 @@
 import tiktoken
-from .openai import (
-    keywords_extraction, 
-    prepare_keywords_for_semantic_search, 
-    add_ordered_similarity_results_to_prompt, 
-    get_llm_chat_answer
-)
-from .qdrant import query_all_keywords, query_from_user_input
 
+from clients.openai import OpenaiClient
+from clients.qdrant import QdrantClient
 from models.responses.search import PostSearchResponse
 
 
@@ -57,7 +52,8 @@ max_num_tokens = {
 class SearchService:
 
     def __init__(self):
-        pass
+        self.openai_client = OpenaiClient()
+        self.qdrant_client = QdrantClient()
 
     def suggest_relevant_dandisets(
         self, 
@@ -66,16 +62,16 @@ class SearchService:
         method: int = 1
     ) -> PostSearchResponse:
         if method == 1:
-            ordered_similarity_results = query_from_user_input(text=user_input, top_k=15)
+            ordered_similarity_results = self.qdrant_client.query_from_user_input(text=user_input, top_k=15)
         elif method == 2:
-            keywords = keywords_extraction(user_input=user_input)
-            keywords_2 = prepare_keywords_for_semantic_search(keywords)
-            ordered_similarity_results = query_all_keywords(keywords_2, top_k=15)
+            keywords = self.openai_client.keywords_extraction(user_input=user_input)
+            keywords_2 = self.openai_client.prepare_keywords_for_semantic_search(keywords)
+            ordered_similarity_results = self.qdrant_client.query_all_keywords(keywords_2, top_k=15)
         else:
             raise ValueError("method must be 1 or 2")
-        dandisets_text = add_ordered_similarity_results_to_prompt(similarity_results=ordered_similarity_results)
+        dandisets_text = self.openai_client.add_ordered_similarity_results_to_prompt(similarity_results=ordered_similarity_results)
         prompt = self.prepare_prompt(user_input=user_input, dandisets_text=dandisets_text, model=model)
-        return get_llm_chat_answer(prompt, model=model)
+        return self.openai_client.get_llm_chat_answer(prompt, model=model)
     
     def prepare_prompt(
         self, 
