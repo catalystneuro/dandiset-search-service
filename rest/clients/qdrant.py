@@ -1,4 +1,4 @@
-from qdrant_client import QdrantClient
+from qdrant_client import QdrantClient as Qdrant
 from qdrant_client.http.models import Distance, VectorParams, PointStruct
 from qdrant_client.http.models import UpdateStatus
 from concurrent.futures import ThreadPoolExecutor, wait
@@ -20,7 +20,7 @@ class QdrantClient:
         self.port = port
         self.collection_name = collection_name
         self.vector_size = vector_size
-        self.qdrant_client = QdrantClient(self.host, port=self.port)
+        self.qdrant_client = Qdrant(self.host, port=self.port)
         self.openai_client = OpenaiClient()
 
 
