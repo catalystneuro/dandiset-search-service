@@ -21,7 +21,7 @@ services:
     image: dandi-search-rest
     container_name: dandi-search-rest
     ports:
-      - "8050:8050"
+      - "8000:8000"
     environment:
       QDRANT_HOST: ${QDRANT_HOST}
       QDRANT_PORT: ${QDRANT_PORT}
