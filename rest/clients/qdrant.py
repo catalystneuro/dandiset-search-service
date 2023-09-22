@@ -1,0 +1,100 @@
+from qdrant_client import QdrantClient
+from qdrant_client.http.models import Distance, VectorParams, PointStruct
+from qdrant_client.http.models import UpdateStatus
+from concurrent.futures import ThreadPoolExecutor, wait
+
+from core.settings import settings
+from .openai import get_embedding_simple
+
+
+class QdrantClient:
+
+    def __init__(
+        self,
+        host: str=settings.QDRANT_HOST,
+        port: int=settings.QDRANT_PORT,
+        collection_name: str=settings.QDRANT_COLLECTION_NAME,
+        vector_size: int=settings.QDRANT_VECTOR_SIZE,
+    ) -> None:
+        self.host = host
+        self.port = port
+        self.collection_name = collection_name
+        self.vector_size = vector_size
+        self.client = QdrantClient(self.host, port=self.port)
+
+
+    def create_collection(self):
+        self.client.recreate_collection(
+            collection_name=self.collection_name,
+            vectors_config=VectorParams(size=self.vector_size, distance=Distance.DOT),
+        )   
+
+
+    def add_points_to_collection(self, embeddings_objects: list):
+        def upsert_batch(points_batch):
+            client = QdrantClient("localhost", port=6333)
+            points_list = [PointStruct(**i) for i in points_batch]
+            upsert_result = client.upsert(
+                collection_name=self.collection_name,
+                wait=True,
+                points=points_list,
+            )
+            assert upsert_result.status == UpdateStatus.COMPLETED
+
+        with ThreadPoolExecutor() as executor:
+            batch_size = 100
+            batches = [embeddings_objects[i:i + batch_size] for i in range(0, len(embeddings_objects), batch_size)]
+            futures = [executor.submit(upsert_batch, batch) for batch in batches]
+            # Wait for all futures to complete
+            wait(futures)
+        print(f"All points added to collection {self.collection_name}")
+
+
+    def get_collection_info(self):
+        return self.client.get_collection(collection_name=self.collection_name).dict()
+
+
+    def query_similar_items(self, query: str, top_k: int=10):
+        query_vector = get_embedding_simple(query)
+        search_result = self.client.search(
+            collection_name=self.collection_name,
+            query_vector=query_vector,
+            limit=top_k,
+        )
+        return search_result
+
+
+    def query_from_user_input(self, text: str, top_k: int=10):
+        search_results = self.query_similar_items(query=text, top_k=top_k)
+        results = dict()
+        for sr in search_results:
+            dandiset_id = sr.payload["dandiset_id"]
+            score = sr.score
+            if dandiset_id not in results:
+                results[dandiset_id] = score
+            else:
+                results[dandiset_id] += score
+        #     print(f'{sr.payload["dandiset_id"]} \n{sr.payload["text_content"]} \n{sr.score} \n')
+        return self.get_top_scores(results)
+
+
+    def query_all_keywords(self, keywords: list, top_k: int=10):
+        results = dict()
+        for keyword in keywords:
+            search_results = self.query_similar_items(query=keyword, top_k=top_k)
+            for sr in search_results:
+                dandiset_id = sr.payload["dandiset_id"]
+                score = sr.score
+                if dandiset_id not in results:
+                    results[dandiset_id] = score
+                else:
+                    results[dandiset_id] += score
+        return self.get_top_scores(results)
+
+
+    def get_top_scores(self, dictionary: dict, N: int=None):
+        sorted_items = sorted(dictionary.items(), key=lambda x: x[1], reverse=True)
+        if not N:
+            N = len(dictionary)
+        top_scores = sorted_items[:min(N, len(dictionary))]
+        return top_scores

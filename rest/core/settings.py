@@ -1,0 +1,55 @@
+from pydantic_settings import BaseSettings
+import os
+
+
+class Settings(BaseSettings):
+    # General app config
+    VERSION: str = "0.1.0"
+    APP_TITLE: str = "Dandiset search"
+
+    QDRANT_HOST: str = os.environ.get('QDRANT_HOST', "localhost")
+    QDRANT_PORT: int = int(os.environ.get('QDRANT_PORT', 6333))
+    QDRANT_COLLECTION_NAME: str = os.environ.get('QDRANT_COLLECTION_NAME', "dandi_collection")
+    QDRANT_VECTOR_SIZE: int = int(os.environ.get('QDRANT_VECTOR_SIZE', 1536))
+
+
+class DevSettings(Settings):
+    SERVER_HOST: str = "0.0.0.0"
+    DEBUG: bool = True
+    PORT: int = 8050
+    RELOAD: bool = True
+    CORS: dict = {
+        "origins": [
+            "*",
+        ],
+        "allow_credentials": True,
+        "allow_methods": ["*"],
+        "allow_headers": ["*"],
+    }
+    REDIRECT_HTTPS: bool = False
+    API_BASE_URL: str = os.environ.get('API_BASE_URL', "http://localhost:8000")
+
+class DockerDevSettings(DevSettings):
+    API_BASE_URL: str = 'http://rest-api:80'
+
+
+class ProdSettings(Settings):
+    SERVER_HOST: str = "0.0.0.0"
+    DEBUG: bool = False
+    PORT: int = 8050
+    RELOAD: bool = False
+    API_BASE_URL: str = os.environ.get('API_BASE_URL', "http://localhost:8000")
+
+
+
+def get_settings():
+    env = os.getenv("DEPLOY_ENV", "dev")
+    settings_type = {
+        "dev": DevSettings(),
+        "docker-dev": DockerDevSettings(),
+        "prod": ProdSettings(),
+    }
+    return settings_type[env]
+
+
+settings: Settings = get_settings()
