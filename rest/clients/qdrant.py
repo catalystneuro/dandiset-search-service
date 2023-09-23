@@ -31,9 +31,8 @@ class QdrantClient:
 
     def add_points_to_collection(self, collection_name: str, embeddings_objects: list):
         def upsert_batch(points_batch):
-            client = QdrantClient("localhost", port=6333)
             points_list = [PointStruct(**i) for i in points_batch]
-            upsert_result = client.upsert(
+            upsert_result = self.qdrant_client.upsert(
                 collection_name=collection_name,
                 wait=True,
                 points=points_list,
