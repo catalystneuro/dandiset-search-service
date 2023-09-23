@@ -3,8 +3,8 @@ from qdrant_client.http.models import Distance, VectorParams, PointStruct
 from qdrant_client.http.models import UpdateStatus
 from concurrent.futures import ThreadPoolExecutor, wait
 
-from core.settings import settings
-from clients.openai import OpenaiClient
+from ..core.settings import settings
+from .openai import OpenaiClient
 
 
 class QdrantClient:

@@ -7,8 +7,8 @@ import json
 import uuid
 import openai
 
-from core.settings import settings
-from clients.dandi import DandiClient
+from ..core.settings import settings
+from .dandi import DandiClient
 
 
 class OpenaiClient:

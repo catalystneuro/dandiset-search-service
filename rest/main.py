@@ -2,9 +2,8 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers.health import router as health_router
-from routers.search import router as search_router
-from core.settings import settings
+from .routers import health, search
+from .core.settings import settings
 
 
 description = """
@@ -28,8 +27,8 @@ def configure_app():
         allow_headers=settings.CORS["allow_headers"],
     )
 
-    app.include_router(health_router, tags=["Health"])
-    app.include_router(search_router, tags=["Search"])
+    app.include_router(health.router)
+    app.include_router(search.router)
 
     return app, settings
 

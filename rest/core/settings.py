@@ -5,7 +5,7 @@ import os
 def safe_int(value, default: int=0):
     try:
         return int(value)
-    except ValueError:
+    except Exception as e:
         return int(default)
 
 
@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     QDRANT_PORT: int = safe_int(os.environ.get('QDRANT_PORT'), 6333)
     QDRANT_COLLECTION_NAME: str = os.environ.get('QDRANT_COLLECTION_NAME', "dandi_collection")
     QDRANT_VECTOR_SIZE: int = safe_int(os.environ.get('QDRANT_VECTOR_SIZE'), 1536)
+    QDRANT_API_KEY: str = os.environ.get('QDRANT_API_KEY', None)
 
     OPENAI_API_KEY: str = os.environ.get('OPENAI_API_KEY', None)
 

@@ -1,8 +1,8 @@
 import tiktoken
 
-from clients.openai import OpenaiClient
-from clients.qdrant import QdrantClient
-from models.responses.search import PostSearchResponse
+from ..clients.openai import OpenaiClient
+from ..clients.qdrant import QdrantClient
+from ..models.responses.search import PostSearchResponse
 
 
 base_prompt = """Given the user input and the list of most reference dandisets, propose which dandisets the user might be interested in using.

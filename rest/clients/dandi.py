@@ -58,22 +58,22 @@ class DandiClient:
         all_metadata_formatted = []
         for m in metadata_list:
             try:
-                title = f"title: {m.name}"
-                description = f"description: {m.description}"
+                title = m.name
+                description = m.description
                 if m.assetsSummary.approach:
-                    approaches = [f"approach: {a.name}" for a in m.assetsSummary.approach]
+                    approaches = [a.name for a in m.assetsSummary.approach]
                 else:
                     approaches = []
                 if m.assetsSummary.measurementTechnique:
-                    measurement_techniques = [f"measurement technique: {a.name}" for a in m.assetsSummary.measurementTechnique]
+                    measurement_techniques = [a.name for a in m.assetsSummary.measurementTechnique]
                 else:
                     measurement_techniques = []
                 if m.assetsSummary.variableMeasured:
-                    variables_measured = [f"variable measured: {a}" for a in m.assetsSummary.variableMeasured]
+                    variables_measured = [a for a in m.assetsSummary.variableMeasured]
                 else:
                     variables_measured = []
                 if m.assetsSummary.species:
-                    species = [f"species: {a.name}" for a in m.assetsSummary.species]
+                    species = [a.name for a in m.assetsSummary.species]
                 else:
                     species = []
                 all_metadata_formatted.append(
@@ -90,3 +90,19 @@ class DandiClient:
             except Exception as e:
                 raise e
         return all_metadata_formatted
+    
+    
+    def stringify_relevant_metadata(self, metadata_formatted: dict):
+        """Convert metadata dict to string"""
+        text = ""
+        text += "Title: " + metadata_formatted["title"] + "\n"
+        text += "Description: " + metadata_formatted["description"] + "\n"
+        if "approaches" in metadata_formatted:
+            text += "Approaches: " + ", ".join(metadata_formatted["approaches"]) + "\n"
+        if "measurement_techniques" in metadata_formatted:
+            text += "Measurement techniques: " + ", ".join(metadata_formatted["measurement_techniques"]) + "\n"
+        if "variables_measured" in metadata_formatted:
+            text += "Variables measured: " + ", ".join(metadata_formatted["variables_measured"]) + "\n"
+        if "species" in metadata_formatted:
+            text += "Species: " + ", ".join(metadata_formatted["species"]) + "\n"
+        return text

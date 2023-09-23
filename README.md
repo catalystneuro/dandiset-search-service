@@ -22,3 +22,10 @@ Running with docker compose building images locally:
 ```bash
 docker compose -f docker-compose.dev.yml up --build
 ```
+
+Running REST API in local environment:
+
+```bash
+uvicorn rest.main:app --reload
+```
+
