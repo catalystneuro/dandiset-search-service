@@ -7,6 +7,7 @@ export QDRANT_HOST=
 export QDRANT_PORT=
 export QDRANT_COLLECTION_NAME=
 export QDRANT_VECTOR_SIZE=
+export QDRANT_API_KEY=
 export OPENAI_API_KEY=
 export DANDI_API_KEY=
 ```
@@ -20,12 +21,15 @@ docker compose up
 Running with docker compose building images locally:
 
 ```bash
-docker compose -f docker-compose.dev.yml up --build
+docker compose -f docker-compose.dev.yaml up --build
 ```
 
-Running REST API in local environment:
+Services will be available at:
 
-```bash
-uvicorn rest.main:app --reload
-```
+- http://localhost:5173 - Frontend
+- http://localhost:8000 - REST API
+- http://localhost:8000/docs - REST API docs
+- http://localhost:6333 - Qdrant API
+- http://localhost:6333/dashboard - Qdrant dashboard
+
 

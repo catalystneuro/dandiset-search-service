@@ -13,30 +13,28 @@ class QdrantClient:
         self,
         host: str=settings.QDRANT_HOST,
         port: int=settings.QDRANT_PORT,
-        collection_name: str=settings.QDRANT_COLLECTION_NAME,
         vector_size: int=settings.QDRANT_VECTOR_SIZE,
     ) -> None:
         self.host = host
         self.port = port
-        self.collection_name = collection_name
         self.vector_size = vector_size
         self.qdrant_client = Qdrant(self.host, port=self.port)
         self.openai_client = OpenaiClient()
 
 
-    def create_collection(self):
+    def create_collection(self, collection_name: str):
         self.qdrant_client.recreate_collection(
-            collection_name=self.collection_name,
+            collection_name=collection_name,
             vectors_config=VectorParams(size=self.vector_size, distance=Distance.DOT),
         )   
 
 
-    def add_points_to_collection(self, embeddings_objects: list):
+    def add_points_to_collection(self, collection_name: str, embeddings_objects: list):
         def upsert_batch(points_batch):
             client = QdrantClient("localhost", port=6333)
             points_list = [PointStruct(**i) for i in points_batch]
             upsert_result = client.upsert(
-                collection_name=self.collection_name,
+                collection_name=collection_name,
                 wait=True,
                 points=points_list,
             )
@@ -48,17 +46,17 @@ class QdrantClient:
             futures = [executor.submit(upsert_batch, batch) for batch in batches]
             # Wait for all futures to complete
             wait(futures)
-        print(f"All points added to collection {self.collection_name}")
+        print(f"All points added to collection {collection_name}")
 
 
-    def get_collection_info(self):
-        return self.qdrant_client.get_collection(collection_name=self.collection_name).dict()
+    def get_collection_info(self, collection_name: str):
+        return self.qdrant_client.get_collection(collection_name=collection_name).dict()
 
 
-    def query_similar_items(self, query: str, top_k: int=10):
+    def query_similar_items(self, collection_name: str, query: str, top_k: int=10):
         query_vector = self.openai_client.get_embedding_simple(query)
         search_result = self.qdrant_client.search(
-            collection_name=self.collection_name,
+            collection_name=collection_name,
             query_vector=query_vector,
             limit=top_k,
         )

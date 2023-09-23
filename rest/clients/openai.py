@@ -1,7 +1,7 @@
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import create_extraction_chain
-from tqdm import tqdm
+from typing import List
 from pathlib import Path
 import json
 import uuid
@@ -24,108 +24,27 @@ class OpenaiClient:
         return self.embeddings_client.embed_query(text)
 
 
-    def get_embeddings(self, metadata_list: list, max_num_sets: int = None, save_to_file: bool = False) -> list:
+    def get_embeddings(self, metadata_list: List[dict], max_num_sets: int = None, save_to_file: bool = False) -> List:
         """Get embeddings for all metadata fields, organizes them as list of objects similar to Qdrant points"""
-        all_qdrant_ponits = []
         if not max_num_sets:
             max_num_sets = len(metadata_list)
-        iterable = tqdm(metadata_list[:max_num_sets])
-        for m in iterable:
-            # print("Generating embeddings for DANDI set:", m["dandiset_id"])
-            iterable.set_description(f"Processing item {m['dandiset_id']}")
-            n_approaches = len(m["approaches"])
-            n_measurement_techniques = len(m["measurement_techniques"])
-            n_variables_measured = len(m["variables_measured"])
-            n_species = len(m["species"])
-            query_list = [
-                m["title"],
-                m["description"],
-            ]
-            query_list.extend(m["approaches"])
-            query_list.extend(m["measurement_techniques"])
-            query_list.extend(m["variables_measured"])
-            query_list.extend(m["species"])
-            embeddings = self.embeddings_client.embed_documents(
-                texts=query_list,
-                chunk_size=len(query_list),
-            )
-            # Prepare Qdrant Points
-            qdrant_points = []
-            qdrant_points.append(
-                {
-                    "id": str(uuid.uuid4()),
-                    "vector": embeddings[0],
-                    "payload": {
-                        "dandiset_id": m["dandiset_id"],
-                        "field": "title",
-                        "text_content": m["title"],
-                    }
-                }
-            )
-            qdrant_points.append(
-                {
-                    "id": str(uuid.uuid4()),
-                    "vector": embeddings[1],
-                    "payload": {
-                        "dandiset_id": m["dandiset_id"],
-                        "field": "description",
-                        "text_content": m["description"],
-                    }
-                }
-            )
-            for i in range(n_approaches):
-                qdrant_points.append(
-                    {
-                        "id": str(uuid.uuid4()),
-                        "vector": embeddings[2+i],
-                        "payload": {
-                            "dandiset_id": m["dandiset_id"],
-                            "field": "approaches",
-                            "text_content": m["approaches"][i],
-                        }
-                    }
-                )
-            for i in range(n_measurement_techniques):
-                qdrant_points.append(
-                    {
-                        "id": str(uuid.uuid4()),
-                        "vector": embeddings[2+n_approaches+i],
-                        "payload": {
-                            "dandiset_id": m["dandiset_id"],
-                            "field": "measurement_techniques",
-                            "text_content": m["measurement_techniques"][i],
-                        }
-                    }
-                )
-            for i in range(n_variables_measured):
-                qdrant_points.append(
-                    {
-                        "id": str(uuid.uuid4()),
-                        "vector": embeddings[2+n_approaches+n_measurement_techniques+i],
-                        "payload": {
-                            "dandiset_id": m["dandiset_id"],
-                            "field": "variables_measured",
-                            "text_content": m["variables_measured"][i],
-                        }
-                    }
-                )
-            for i in range(n_species):
-                qdrant_points.append(
-                    {
-                        "id": str(uuid.uuid4()),
-                        "vector": embeddings[2+n_approaches+n_measurement_techniques+n_variables_measured+i],
-                        "payload": {
-                            "dandiset_id": m["dandiset_id"],
-                            "field": "species",
-                            "text_content": m["species"][i],
-                        }
-                    }
-                )
-            all_qdrant_ponits.extend(qdrant_points)
-            if save_to_file and len(all_qdrant_ponits) > 0:
-                with open(str(Path.cwd() / "qdrant_points.json"), "w") as f:
-                    json.dump(all_qdrant_ponits, f)
-        return all_qdrant_ponits
+        query_list = [self.dandi_client.stringify_relevant_metadata(m) for m in metadata_list[:max_num_sets]]
+        embeddings = self.embeddings_client.embed_documents(
+            texts=query_list,
+            chunk_size=len(query_list),
+        )
+        # Prepare Qdrant Points
+        qdrant_points = [
+            {
+                "id": str(uuid.uuid4()),
+                "vector": emb,
+                "payload": metadata_list[i],
+            } for i, emb in enumerate(embeddings)
+        ]
+        if save_to_file and len(qdrant_points) > 0:
+            with open(str(Path.cwd() / "qdrant_points.json"), "w") as f:
+                json.dump(qdrant_points, f)
+        return qdrant_points
 
 
     def keywords_extraction(self, user_input: str, model: str = "gpt-3.5-turbo"):
