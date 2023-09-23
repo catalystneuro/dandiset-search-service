@@ -21,8 +21,15 @@ search_service = SearchService()
 )
 async def get_fields_data(req: PostSearchRequest) -> PostSearchResponse:
     try:
-        # response = search_service.suggest_relevant_dandisets(user_input=req.text)
-        response = {"text": "response text"}
-        return response
+        response = search_service.suggest_relevant_dandisets(
+            user_input=req.text,
+            collection_name="dandi_collection",
+            model="gpt-3.5-turbo-16k", 
+            method=req.method,
+        )
+        # import time
+        # time.sleep(5)
+        # response = req.text + req.method
+        return PostSearchResponse(text=response)
     except (BadRequestException, UnauthorizedException) as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)

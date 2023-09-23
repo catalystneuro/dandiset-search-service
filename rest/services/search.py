@@ -1,5 +1,6 @@
 import tiktoken
 
+from ..core.settings import settings
 from ..clients.openai import OpenaiClient
 from ..clients.qdrant import QdrantClient
 from ..models.responses.search import PostSearchResponse
@@ -51,22 +52,35 @@ max_num_tokens = {
 
 class SearchService:
 
-    def __init__(self):
+    def __init__(
+        self,
+        qdrant_host: str=settings.QDRANT_HOST,
+        qdrant_port: int=settings.QDRANT_PORT,
+    ):
         self.openai_client = OpenaiClient()
-        self.qdrant_client = QdrantClient()
+        self.qdrant_client = QdrantClient(host=qdrant_host, port=qdrant_port)
 
     def suggest_relevant_dandisets(
         self, 
         user_input: str,
+        collection_name: str,
         model: str = "gpt-3.5-turbo", 
         method: int = 1
     ) -> PostSearchResponse:
-        if method == 1:
-            ordered_similarity_results = self.qdrant_client.query_from_user_input(text=user_input, top_k=15)
-        elif method == 2:
+        if method == "simple":
+            ordered_similarity_results = self.qdrant_client.query_from_user_input(
+                text=user_input, 
+                collection_name=collection_name, 
+                top_k=10
+            )
+        elif method == "keywords":
             keywords = self.openai_client.keywords_extraction(user_input=user_input)
             keywords_2 = self.openai_client.prepare_keywords_for_semantic_search(keywords)
-            ordered_similarity_results = self.qdrant_client.query_all_keywords(keywords_2, top_k=15)
+            ordered_similarity_results = self.qdrant_client.query_all_keywords(
+                keywords=keywords_2, 
+                collection_name=collection_name,
+                top_k=10
+            )
         else:
             raise ValueError("method must be 1 or 2")
         dandisets_text = self.openai_client.add_ordered_similarity_results_to_prompt(similarity_results=ordered_similarity_results)

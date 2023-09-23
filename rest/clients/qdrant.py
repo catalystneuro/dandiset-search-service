@@ -62,8 +62,8 @@ class QdrantClient:
         return search_result
 
 
-    def query_from_user_input(self, text: str, top_k: int=10):
-        search_results = self.query_similar_items(query=text, top_k=top_k)
+    def query_from_user_input(self, text: str, collection_name: str, top_k: int=10):
+        search_results = self.query_similar_items(query=text, top_k=top_k, collection_name=collection_name)
         results = dict()
         for sr in search_results:
             dandiset_id = sr.payload["dandiset_id"]
@@ -76,10 +76,10 @@ class QdrantClient:
         return self.get_top_scores(results)
 
 
-    def query_all_keywords(self, keywords: list, top_k: int=10):
+    def query_all_keywords(self, keywords: list, collection_name: str, top_k: int=10):
         results = dict()
         for keyword in keywords:
-            search_results = self.query_similar_items(query=keyword, top_k=top_k)
+            search_results = self.query_similar_items(query=keyword, top_k=top_k, collection_name=collection_name)
             for sr in search_results:
                 dandiset_id = sr.payload["dandiset_id"]
                 score = sr.score

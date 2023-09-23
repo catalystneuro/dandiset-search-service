@@ -1,4 +1,3 @@
-import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -34,10 +33,11 @@ def configure_app():
 
 app, settings = configure_app()
 
-if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",
-        host=settings.SERVER_HOST,
-        port=settings.PORT,
-        reload=settings.RELOAD
-    )
+
+# if __name__ == "__main__":
+#     uvicorn.run(
+#         "main:app",
+#         host=settings.SERVER_HOST,
+#         port=settings.PORT,
+#         reload=settings.RELOAD
+#     )

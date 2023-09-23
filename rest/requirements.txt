@@ -8,3 +8,4 @@ langchain==0.0.218  # TODO - update this
 # langchain==0.0.300
 dandi==0.56.1
 dandischema==0.8.4
+gunicorn
