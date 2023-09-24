@@ -123,7 +123,12 @@ class OpenaiClient:
         return prompt
 
 
-    def get_llm_chat_answer(self, prompt: str, system_prompt: str = None, model: str = "gpt-3.5-turbo"):
+    def get_llm_chat_answer(
+            self, prompt: str, 
+            system_prompt: str = None, 
+            model: str = "gpt-3.5-turbo",
+            stream: bool = False
+        ):
         if system_prompt is None:
             system_prompt = "You are a helpful neuroscience research assistant, you give brief and informative suggestions to users questions, always based on a list of relevant reference dandi sets."
         completion = openai.ChatCompletion.create(
@@ -131,6 +136,11 @@ class OpenaiClient:
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt}
-            ]
+            ],
+            stream=stream,
         )
+        if stream:
+            for message in completion:
+                if not message.choices[0]["delta"].get("role", None):
+                    yield message.choices[0]["delta"].get("content")
         return completion.choices[0].message["content"]

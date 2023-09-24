@@ -73,7 +73,8 @@ class SearchService:
         user_input: str,
         collection_name: str,
         model: str = "gpt-3.5-turbo", 
-        method: int = 1
+        method: int = 1,
+        stream: bool = False,
     ) -> PostSearchResponse:
         if method == "simple":
             ordered_similarity_results = self.qdrant_client.query_from_user_input(
@@ -92,9 +93,8 @@ class SearchService:
         else:
             raise ValueError("method must be 1 or 2")
         dandisets_text = self.openai_client.add_ordered_similarity_results_to_prompt(similarity_results=ordered_similarity_results)
-        # return dandisets_text
         prompt = self.prepare_prompt(user_input=user_input, dandisets_text=dandisets_text, model=model)
-        return self.openai_client.get_llm_chat_answer(prompt, model=model)
+        return self.openai_client.get_llm_chat_answer(prompt, model=model, stream=stream)
     
     def prepare_prompt(
         self, 
