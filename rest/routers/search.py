@@ -28,7 +28,7 @@ async def get_fields_data(req: PostSearchRequest) -> PostSearchResponse:
             method=req.method,
         )
         # import time
-        # time.sleep(5)
+        # time.sleep(1)
         # response = req.text + req.method
         return PostSearchResponse(text=response)
     except (BadRequestException, UnauthorizedException) as e:

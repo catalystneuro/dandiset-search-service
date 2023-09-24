@@ -79,6 +79,7 @@ class DandiClient:
                 all_metadata_formatted.append(
                     {
                         "dandiset_id": m.id,
+                        "url": str(m.url),
                         "title": title,
                         "description": description,
                         "approaches": approaches,

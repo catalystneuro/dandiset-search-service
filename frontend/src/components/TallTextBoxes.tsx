@@ -1,5 +1,6 @@
 import React from 'react';
 import { TextField, Box, Button } from '@mui/material';
+import ReactMarkdown from 'react-markdown';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 
 interface TallTextBoxesProps {
@@ -15,7 +16,7 @@ const TallTextBoxes: React.FC<TallTextBoxesProps> = ({ results }) => {
             style={{ minHeight: '500px' }}
         >
             <Box sx={{ width: '50%' }}>
-                <TextField
+                {/* <TextField
                     id="outlined-multiline-static-1"
                     label="Response"
                     multiline
@@ -23,7 +24,12 @@ const TallTextBoxes: React.FC<TallTextBoxesProps> = ({ results }) => {
                     value={results[0]}
                     InputLabelProps={{ shrink: true }}
                     sx={{ width: '100%' }}
-                />
+                /> */}
+                <ReactMarkdown
+                    className='markdown-component'
+                >
+                    {results[0]}
+                </ReactMarkdown>
                 <Button
                     startIcon={<ThumbUpAltIcon />}
                     variant="outlined"
@@ -34,7 +40,7 @@ const TallTextBoxes: React.FC<TallTextBoxesProps> = ({ results }) => {
             </Box>
 
             <Box sx={{ width: '50%' }}>
-                <TextField
+                {/* <TextField
                     id="outlined-multiline-static-2"
                     label="Response"
                     multiline
@@ -42,7 +48,12 @@ const TallTextBoxes: React.FC<TallTextBoxesProps> = ({ results }) => {
                     value={results[1]}
                     InputLabelProps={{ shrink: true }}
                     sx={{ width: '100%' }}
-                />
+                /> */}
+                <ReactMarkdown
+                    className='markdown-component'
+                >
+                    {results[1]}
+                </ReactMarkdown>
                 <Button
                     startIcon={<ThumbUpAltIcon />}
                     variant="outlined"

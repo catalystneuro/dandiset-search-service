@@ -13,7 +13,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({ onSearch, onResults }) => {
     const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
 
     const handleSearch = async () => {
-        onSearch(query);  // You can still use the onSearch prop if needed elsewhere.
+        onSearch(query);
         setSnackbarMessage('Searching relevant dandisets... Please wait.');
         try {
             const responses = await Promise.all([

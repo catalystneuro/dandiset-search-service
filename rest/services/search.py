@@ -9,9 +9,9 @@ from ..models.responses.search import PostSearchResponse
 base_prompt = """Given the user input and the list of most reference dandisets, propose which dandisets the user might be interested in using.
 Explain your decision based on the information of the reference dandisets.
 Suggest only the dandisets which you consider to be most relevant. There can be multiple relevant dandisets.
-Structure your answer as a numbered list, with one suggestion per item.
 Always start your answers always with: "The most relevant dandisets for your question are:" 
 Unless you consider there are no relevant dandisets, in which case only reply: "There are no relevant dandisets for your question"
+Structure your answer as a numbered list, with one suggestion per item.
 ---
 User input: {user_input}
 ---
@@ -22,16 +22,24 @@ Begin:"""
 
 
 base_prompt_methods = """Given the user input and the list of most reference dandisets, propose which dandisets the user might be interested in using.
-Explain your decision based on the information of the reference dandisets.
-Suggest only the dandisets which you consider to be most relevant. There can be multiple relevant dandisets.
+Explain your decision based on the information of the reference dandisets. Avoid copying text for explanations.
+Suggest only the dandisets which you consider to be most relevant. There can be multiple relevant dandisets. You do not need to use all of them, just select the most relevant ones.
 Importantly, your response should give emphasis to the methods and techniques used, for examplo electrophyisiology, imaging, behavioral recordings, etc.
 Always start your answers always with: "The most relevant dandisets for your question are:" 
 Unless you consider there are no relevant dandisets, in which case only reply: "There are no relevant dandisets for your question".
-Structure your answer as a numbered list, with one suggestion per item. For example:
-1. dandiset number - dandiset title
-    why this dandiset is relevant...
-2. dandiset number - dandiset title
-    why this dandiset is relevant...
+Format your answer in Markdown, and organize it as a numbered options, with one suggestion per item. 
+In the top of each item, include the dandiset title, wrapped by a link to the dandiset url.
+For each item, include a paragraph with an objective explanation of why you consider this dandiset relevant.
+For example:
+
+1. [title](url) \n
+
+Explain why this dandiset is relevant...
+
+
+2. [title](url) \n
+
+Explain why this dandiset is relevant...
 ...
 ---
 User input: {user_input}
@@ -84,6 +92,7 @@ class SearchService:
         else:
             raise ValueError("method must be 1 or 2")
         dandisets_text = self.openai_client.add_ordered_similarity_results_to_prompt(similarity_results=ordered_similarity_results)
+        # return dandisets_text
         prompt = self.prepare_prompt(user_input=user_input, dandisets_text=dandisets_text, model=model)
         return self.openai_client.get_llm_chat_answer(prompt, model=model)
     

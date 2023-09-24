@@ -22,6 +22,10 @@ function App() {
   const [results, setResults] = React.useState<string[]>(['', '']);
 
   const handleSearch = async (query: string) => {
+    setResults([
+      'Searching for relevant dandisets... please wait',
+      'Searching for relevant dandisets... please wait'
+    ]);
     console.log(`Searching for ${query}`);
   };
 

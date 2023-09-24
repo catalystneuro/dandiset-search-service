@@ -112,11 +112,12 @@ class OpenaiClient:
             text = ""
             for k, v in m2.items():
                 if isinstance(v, list):
-                    text += ", ".join(v) + "\n"
+                    if len(v) > 0:
+                        text += k + ": " + ", ".join(v) + "\n"
                 elif "DANDI:" in v:
-                    text += f'{v.replace("DANDI:", "DANDISET:")}\n'
+                    text += f'{v.replace("DANDI:", "Dandiset number:")}\n'
                 else:
-                    text += f"{v}\n"
+                    text += k + ": " + f"{v}\n"
             
             prompt += f"\n{text}"
         return prompt
