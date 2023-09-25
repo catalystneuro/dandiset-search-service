@@ -34,9 +34,14 @@ const SearchBox: React.FC<SearchBoxProps> = ({ onSearch, onResults1, onResults2 
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-                results[results_id] += decoder.decode(value);
-                if (results_id === 1) onResults1(results[results_id]);
-                else onResults2(results[results_id]);
+                if (value) {
+                    const decodedValue = decoder.decode(value);
+                    if (decodedValue !== "undefined") {
+                        results[results_id - 1] += decodedValue;
+                        if (results_id === 1) onResults1(results[results_id - 1]);
+                        else if (results_id === 2) onResults2(results[results_id - 1]);
+                    }
+                }
             }
         };
 
@@ -73,7 +78,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({ onSearch, onResults1, onResults2 
                 open={!!snackbarMessage}
                 autoHideDuration={20000}
                 onClose={() => setSnackbarMessage(null)}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}  // This line sets the position
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
                 <Alert onClose={() => setSnackbarMessage(null)} severity={snackbarMessage === 'Something went wrong' ? 'error' : 'success'}>
                     {snackbarMessage}

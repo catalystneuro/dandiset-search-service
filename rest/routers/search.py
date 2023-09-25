@@ -21,7 +21,7 @@ search_service = SearchService()
         status.HTTP_400_BAD_REQUEST: {"model": BadRequestError},
     }
 )
-async def get_fields_data(req: PostSearchRequest): # -> Union[PostSearchResponse, StreamingResponse]:
+async def get_fields_data(req: PostSearchRequest):
     try:
         if req.stream:
             generator = search_service.suggest_relevant_dandisets(
@@ -36,8 +36,7 @@ async def get_fields_data(req: PostSearchRequest): # -> Union[PostSearchResponse
             print()
             return StreamingResponse(
                 content=generator,
-                # media_type="text/plain",
-                media_type="application/json",
+                media_type="text/plain",
             )
         else:
             response = search_service.suggest_relevant_dandisets(
