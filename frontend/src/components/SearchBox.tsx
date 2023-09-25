@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AxiosError } from 'axios';
 import { TextField, Button, Box, Snackbar, Alert } from '@mui/material';
-import apiClient from '../clients/rest_client';
+
 
 interface SearchBoxProps {
     onSearch: (query: string) => void;
@@ -16,42 +16,36 @@ const SearchBox: React.FC<SearchBoxProps> = ({ onSearch, onResults1, onResults2 
     const handleSearch = async () => {
         onSearch(query);
         setSnackbarMessage('Searching relevant dandisets... Please wait.');
-        try {
-            const responses = await Promise.all([
-                apiClient.post('/search', {
-                    text: query,
-                    method: 'simple',
-                    stream: true
-                }),
-                // apiClient.post('/search', {
-                //     text: query,
-                //     method: 'keywords',
-                //     stream: true
-                // }),
-            ]);
 
-            // Handle streaming for the first response
-            let result1 = '';
-            responses[0].data.on('data', (chunk: any) => {
-                result1 += chunk.toString();
-                console.log('result1: ', result1);
-                onResults1(result1);
+        let results: string[] = ['', ''];
+
+        const processStream = async (url: string, data: any, results_id: number) => {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
             });
 
-            // // Handle streaming for the second response
-            // let result2 = '';
-            // responses[1].data.on('data', (chunk: any) => {
-            //     result2 += chunk;
-            //     onResults2(result2);
-            // });
+            const reader = response.body!.getReader();
+            let decoder = new TextDecoder();
 
-            // Wait for both streams to complete
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                results[results_id] += decoder.decode(value);
+                if (results_id === 1) onResults1(results[results_id]);
+                else onResults2(results[results_id]);
+            }
+        };
+
+        try {
             await Promise.all([
-                new Promise((resolve) => responses[0].data.on('end', resolve)),
-                // new Promise((resolve) => responses[1].data.on('end', resolve)),
+                processStream('http://localhost:8000/search', { text: query, method: 'simple', stream: true }, 1),
+                processStream('http://localhost:8000/search', { text: query, method: 'keywords', stream: true }, 2),
             ]);
 
-            // const results = responses.map(res => res.data.text);
             setSnackbarMessage('Results found successfully!');
         } catch (err) {
             const axiosError = err as AxiosError<{ detail: string }>;
