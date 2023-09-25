@@ -1,5 +1,9 @@
 # dandiset-search-service
 
+![image](media/app.gif)
+
+# Running locally 
+
 To run the services, firt set the environment variables:
 
 ```bash
