@@ -142,5 +142,7 @@ class OpenaiClient:
         if stream:
             for message in completion:
                 if not message.choices[0]["delta"].get("role", None):
-                    yield message.choices[0]["delta"].get("content")
-        return completion.choices[0].message["content"]
+                    if message.choices[0]["delta"].get("content"):
+                        yield message.choices[0]["delta"].get("content")
+        else:
+            return completion.choices[0].message["content"]

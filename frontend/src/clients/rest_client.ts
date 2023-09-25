@@ -7,6 +7,7 @@ const apiClient = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
+    responseType: 'stream'
 });
 
 export default apiClient;

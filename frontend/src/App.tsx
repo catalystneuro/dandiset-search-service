@@ -19,14 +19,13 @@ const theme = createTheme({
 });
 
 function App() {
-  const [results, setResults] = React.useState<string[]>(['', '']);
+  const [results1, setResults1] = React.useState<string>('');
+  const [results2, setResults2] = React.useState<string>('');
 
   const handleSearch = async (query: string) => {
-    setResults([
-      'Searching for relevant dandisets... please wait',
-      'Searching for relevant dandisets... please wait'
-    ]);
-    console.log(`Searching for ${query}`);
+    setResults1('Searching for relevant dandisets... please wait');
+    setResults2('Searching for relevant dandisets... please wait');
+    console.log('query: ', query);
   };
 
   return (
@@ -61,8 +60,8 @@ function App() {
           <Typography variant="h6" style={{ marginTop: '20px', marginBottom: '20px', textAlign: 'center', fontSize: "27px" }}>
             Find Dandisets
           </Typography>
-          <SearchBox onSearch={handleSearch} onResults={setResults} />
-          <TallTextBoxes results={results} />
+          <SearchBox onSearch={handleSearch} onResults1={setResults1} onResults2={setResults2} />
+          <TallTextBoxes results={[results1, results2]} />
         </Container>
       </Box>
     </ThemeProvider>

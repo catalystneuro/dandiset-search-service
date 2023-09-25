@@ -1,5 +1,9 @@
 # dandiset-search-service
 
+![image](media/app.gif)
+
+# Running locally 
+
 To run the services, firt set the environment variables:
 
 ```bash
@@ -33,3 +37,8 @@ Services will be available at:
 - http://localhost:6333/dashboard - Qdrant dashboard
 
 
+When services are up, populate the Qdrant vector store with vectorized data from DANDI:
+
+```bash
+python populate_qdrant.py
+```

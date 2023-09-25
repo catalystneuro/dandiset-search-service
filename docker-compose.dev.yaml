@@ -19,8 +19,6 @@ services:
       REST_API_URL: http://localhost:8000
     volumes:
       - ./frontend:/app
-    depends_on:
-      - rest
 
   rest:
     build:

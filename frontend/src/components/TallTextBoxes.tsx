@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField, Box, Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 
@@ -16,15 +16,6 @@ const TallTextBoxes: React.FC<TallTextBoxesProps> = ({ results }) => {
             style={{ minHeight: '500px' }}
         >
             <Box sx={{ width: '50%' }}>
-                {/* <TextField
-                    id="outlined-multiline-static-1"
-                    label="Response"
-                    multiline
-                    rows={20}
-                    value={results[0]}
-                    InputLabelProps={{ shrink: true }}
-                    sx={{ width: '100%' }}
-                /> */}
                 <ReactMarkdown
                     className='markdown-component'
                 >
@@ -40,15 +31,6 @@ const TallTextBoxes: React.FC<TallTextBoxesProps> = ({ results }) => {
             </Box>
 
             <Box sx={{ width: '50%' }}>
-                {/* <TextField
-                    id="outlined-multiline-static-2"
-                    label="Response"
-                    multiline
-                    rows={20}
-                    value={results[1]}
-                    InputLabelProps={{ shrink: true }}
-                    sx={{ width: '100%' }}
-                /> */}
                 <ReactMarkdown
                     className='markdown-component'
                 >

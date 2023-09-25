@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
+from typing import Generator, Union
 
 from ..services.search import SearchService
 from ..models.exceptions.base import BadRequestException, UnauthorizedException
@@ -19,17 +21,34 @@ search_service = SearchService()
         status.HTTP_400_BAD_REQUEST: {"model": BadRequestError},
     }
 )
-async def get_fields_data(req: PostSearchRequest) -> PostSearchResponse:
+async def get_fields_data(req: PostSearchRequest):
     try:
-        response = search_service.suggest_relevant_dandisets(
-            user_input=req.text,
-            collection_name="dandi_collection",
-            model="gpt-3.5-turbo-16k", 
-            method=req.method,
-        )
-        # import time
-        # time.sleep(1)
-        # response = req.text + req.method
-        return PostSearchResponse(text=response)
+        if req.stream:
+            generator = search_service.suggest_relevant_dandisets(
+                user_input=req.text,
+                collection_name="dandi_collection",
+                model="gpt-3.5-turbo-16k", 
+                method=req.method,
+                stream=req.stream,
+            )
+            print()
+            print(f"Streaming responses for method {req.method}")
+            print()
+            return StreamingResponse(
+                content=generator,
+                media_type="text/plain",
+            )
+        else:
+            response = search_service.suggest_relevant_dandisets(
+                user_input=req.text,
+                collection_name="dandi_collection",
+                model="gpt-3.5-turbo-16k", 
+                method=req.method,
+                stream=req.stream,
+            )
+            # import time
+            # time.sleep(1)
+            # response = req.text + req.method
+            return PostSearchResponse(text=response)
     except (BadRequestException, UnauthorizedException) as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
