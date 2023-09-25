@@ -5,10 +5,11 @@ import apiClient from '../clients/rest_client';
 
 interface SearchBoxProps {
     onSearch: (query: string) => void;
-    onResults: (results: string[]) => void;
+    onResults1: (results: string) => void;
+    onResults2: (results: string) => void;
 }
 
-const SearchBox: React.FC<SearchBoxProps> = ({ onSearch, onResults }) => {
+const SearchBox: React.FC<SearchBoxProps> = ({ onSearch, onResults1, onResults2 }) => {
     const [query, setQuery] = useState<string>('');
     const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
 
@@ -20,15 +21,37 @@ const SearchBox: React.FC<SearchBoxProps> = ({ onSearch, onResults }) => {
                 apiClient.post('/search', {
                     text: query,
                     method: 'simple',
+                    stream: true
                 }),
-                apiClient.post('/search', {
-                    text: query,
-                    method: 'keywords',
-                }),
+                // apiClient.post('/search', {
+                //     text: query,
+                //     method: 'keywords',
+                //     stream: true
+                // }),
             ]);
 
-            const results = responses.map(res => res.data.text);
-            onResults(results);
+            // Handle streaming for the first response
+            let result1 = '';
+            responses[0].data.on('data', (chunk: any) => {
+                result1 += chunk.toString();
+                console.log('result1: ', result1);
+                onResults1(result1);
+            });
+
+            // // Handle streaming for the second response
+            // let result2 = '';
+            // responses[1].data.on('data', (chunk: any) => {
+            //     result2 += chunk;
+            //     onResults2(result2);
+            // });
+
+            // Wait for both streams to complete
+            await Promise.all([
+                new Promise((resolve) => responses[0].data.on('end', resolve)),
+                // new Promise((resolve) => responses[1].data.on('end', resolve)),
+            ]);
+
+            // const results = responses.map(res => res.data.text);
             setSnackbarMessage('Results found successfully!');
         } catch (err) {
             const axiosError = err as AxiosError<{ detail: string }>;

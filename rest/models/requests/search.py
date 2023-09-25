@@ -10,3 +10,4 @@ class SearchMethods(str, Enum):
 class PostSearchRequest(BaseModel):
     text: str = Field(..., description="User input text")
     method: SearchMethods = Field(SearchMethods.simple, description="Search method to use")
+    stream: bool = Field(False, description="Stream results or not")
