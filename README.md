@@ -33,3 +33,8 @@ Services will be available at:
 - http://localhost:6333/dashboard - Qdrant dashboard
 
 
+When services are up, populate the Qdrant vector store with vectorized data from DANDI:
+
+```bash
+python populate_qdrant.py
+```
