@@ -1,5 +1,6 @@
 from rest.clients.qdrant import QdrantClient
 import json
+import os
 
 
 # Load data
@@ -7,7 +8,12 @@ with open("data/qdrant_points.json", "r") as file:
     emb = json.load(file)
 
 
-qdrant_client = QdrantClient(host="http://localhost")
+qdrant_client = QdrantClient(
+    host=os.environ.get("QDRANT_HOST", "http://localhost"),
+    port=os.environ.get("QDRANT_PORT", 6333),
+    vector_size=os.environ.get("QDRANT_VECTOR_SIZE", 1536),
+    api_key=os.environ.get("QDRANT_API_KEY", None)
+)
 
 # Create Qdrant collection
 qdrant_client.create_collection(collection_name="dandi_collection")

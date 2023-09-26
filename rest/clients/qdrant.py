@@ -14,11 +14,16 @@ class QdrantClient:
         host: str=settings.QDRANT_HOST,
         port: int=settings.QDRANT_PORT,
         vector_size: int=settings.QDRANT_VECTOR_SIZE,
+        api_key: str=settings.QDRANT_API_KEY,
     ) -> None:
         self.host = host
         self.port = port
         self.vector_size = vector_size
-        self.qdrant_client = Qdrant(self.host, port=self.port)
+        self.qdrant_client = Qdrant(
+            location=self.host, 
+            port=self.port,
+            api_key=api_key,
+        )
         self.openai_client = OpenaiClient()
 
 

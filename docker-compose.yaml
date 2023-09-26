@@ -27,7 +27,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      QDRANT_HOST: qdrant
+      QDRANT_HOST: ${QDRANT_HOST:-qdrant}
       QDRANT_PORT: 6333
       QDRANT_COLLECTION_NAME: ${QDRANT_COLLECTION_NAME}
       QDRANT_VECTOR_SIZE: ${QDRANT_VECTOR_SIZE}
