@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
-from typing import AsyncGenerator, Union
+from typing import AsyncGenerator
 import asyncio
 
 from ..services.search import SearchService
@@ -34,16 +34,6 @@ async def get_fields_data(req: PostSearchRequest):
                         stream=req.stream,
                     ):
                     yield result
-            # generator = search_service.suggest_relevant_dandisets(
-            #     user_input=req.text,
-            #     collection_name="dandi_collection",
-            #     model="gpt-3.5-turbo-16k", 
-            #     method=req.method,
-            #     stream=req.stream,
-            # )
-            print()
-            print(f"Streaming responses for method {req.method}")
-            print()
             return StreamingResponse(
                 content=generator(),
                 media_type="text/plain",
@@ -56,8 +46,6 @@ async def get_fields_data(req: PostSearchRequest):
             #     method=req.method,
             #     stream=req.stream,
             # )
-            # import time
-            # time.sleep(1)
             response = req.text + req.method
             await asyncio.sleep(5)
             return PostSearchResponse(text=response)

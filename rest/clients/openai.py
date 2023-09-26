@@ -91,7 +91,8 @@ class OpenaiClient:
             temperature=0
         )
         chain = create_extraction_chain(schema, llm)
-        return chain.run(user_input)
+        keywords_list = chain.run(user_input)
+        return self.prepare_keywords_for_semantic_search(keywords_list)
 
 
     def prepare_keywords_for_semantic_search(self, keywords_list: list) -> list:
@@ -145,5 +146,3 @@ class OpenaiClient:
             if not message.choices[0]["delta"].get("role", None):
                 if message.choices[0]["delta"].get("content"):
                     yield message.choices[0]["delta"].get("content")
-        # else:
-        #     return completion.choices[0].message["content"]

@@ -82,7 +82,7 @@ class SearchService:
         model: str = "gpt-3.5-turbo", 
         method: int = 1,
         stream: bool = False,
-    ) -> AsyncGenerator[str, None]:#PostSearchResponse:
+    ) -> AsyncGenerator[str, None]:
         if method == "simple":
             ordered_similarity_results = await async_wrapper(
                 self.qdrant_client.query_from_user_input,
@@ -97,7 +97,7 @@ class SearchService:
                 self.openai_client.keywords_extraction,
                 dict(user_input=user_input)
             )
-            keywords_2 = self.openai_client.prepare_keywords_for_semantic_search(keywords)
+            # keywords_2 = self.openai_client.prepare_keywords_for_semantic_search(keywords)
             # ordered_similarity_results = self.qdrant_client.query_all_keywords(
             #     keywords=keywords_2, 
             #     collection_name=collection_name,
@@ -106,7 +106,7 @@ class SearchService:
             ordered_similarity_results = await async_wrapper(
                 self.qdrant_client.query_from_user_input,
                 dict(
-                    text=" ".join(keywords_2), 
+                    text=" ".join(keywords), 
                     collection_name=collection_name, 
                     top_k=6
                 )
@@ -121,7 +121,6 @@ class SearchService:
             self.prepare_prompt,
             dict(user_input=user_input, dandisets_text=dandisets_text, model=model)
         )
-        # prompt = "say hello world or something simple with 100 words"
         async for result in self.openai_client.get_llm_chat_answer(prompt, model=model, stream=stream):
             yield result
     
