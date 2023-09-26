@@ -1,0 +1,36 @@
+version: "3.4"
+
+services:
+  qdrant:
+    image: qdrant/qdrant
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    image: dandi-search-frontend
+    container_name: dandi-search-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      REST_API_URL: http://localhost:8000
+    volumes:
+      - ./frontend:/app
+
+  rest:
+    image: ghcr.io/catalystneuro/dandiset-search-service:latest
+    container_name: dandi-search-rest
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+    ports:
+      - "8000:8000"
+    environment:
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+      QDRANT_COLLECTION_NAME: ${QDRANT_COLLECTION_NAME}
+      QDRANT_VECTOR_SIZE: ${QDRANT_VECTOR_SIZE}
+      QDRANT_API_KEY: ${QDRANT_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      DANDI_API_KEY: ${DANDI_API_KEY}
