@@ -6,6 +6,7 @@ from pathlib import Path
 import json
 import uuid
 import openai
+from typing import AsyncGenerator
 
 from ..core.settings import settings
 from .dandi import DandiClient
@@ -123,15 +124,16 @@ class OpenaiClient:
         return prompt
 
 
-    def get_llm_chat_answer(
-            self, prompt: str, 
-            system_prompt: str = None, 
-            model: str = "gpt-3.5-turbo",
-            stream: bool = False
-        ):
+    async def get_llm_chat_answer(
+        self, 
+        prompt: str, 
+        system_prompt: str = None, 
+        model: str = "gpt-3.5-turbo",
+        stream: bool = False
+    ) -> AsyncGenerator[str, None]:
         if system_prompt is None:
             system_prompt = "You are a helpful neuroscience research assistant, you give brief and informative suggestions to users questions, always based on a list of relevant reference dandi sets."
-        completion = openai.ChatCompletion.create(
+        completion = await openai.ChatCompletion.acreate(
             model=model,
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -139,10 +141,9 @@ class OpenaiClient:
             ],
             stream=stream,
         )
-        if stream:
-            for message in completion:
-                if not message.choices[0]["delta"].get("role", None):
-                    if message.choices[0]["delta"].get("content"):
-                        yield message.choices[0]["delta"].get("content")
-        else:
-            return completion.choices[0].message["content"]
+        async for message in completion:
+            if not message.choices[0]["delta"].get("role", None):
+                if message.choices[0]["delta"].get("content"):
+                    yield message.choices[0]["delta"].get("content")
+        # else:
+        #     return completion.choices[0].message["content"]

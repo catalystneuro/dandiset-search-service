@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
-from typing import Generator, Union
+from typing import AsyncGenerator, Union
+import asyncio
 
 from ..services.search import SearchService
 from ..models.exceptions.base import BadRequestException, UnauthorizedException
@@ -24,31 +25,41 @@ search_service = SearchService()
 async def get_fields_data(req: PostSearchRequest):
     try:
         if req.stream:
-            generator = search_service.suggest_relevant_dandisets(
-                user_input=req.text,
-                collection_name="dandi_collection",
-                model="gpt-3.5-turbo-16k", 
-                method=req.method,
-                stream=req.stream,
-            )
+            async def generator() -> AsyncGenerator[str, None]:
+                async for result in search_service.suggest_relevant_dandisets(
+                        user_input=req.text,
+                        collection_name="dandi_collection",
+                        model="gpt-3.5-turbo-16k", 
+                        method=req.method,
+                        stream=req.stream,
+                    ):
+                    yield result
+            # generator = search_service.suggest_relevant_dandisets(
+            #     user_input=req.text,
+            #     collection_name="dandi_collection",
+            #     model="gpt-3.5-turbo-16k", 
+            #     method=req.method,
+            #     stream=req.stream,
+            # )
             print()
             print(f"Streaming responses for method {req.method}")
             print()
             return StreamingResponse(
-                content=generator,
+                content=generator(),
                 media_type="text/plain",
             )
         else:
-            response = search_service.suggest_relevant_dandisets(
-                user_input=req.text,
-                collection_name="dandi_collection",
-                model="gpt-3.5-turbo-16k", 
-                method=req.method,
-                stream=req.stream,
-            )
+            # response = search_service.suggest_relevant_dandisets(
+            #     user_input=req.text,
+            #     collection_name="dandi_collection",
+            #     model="gpt-3.5-turbo-16k", 
+            #     method=req.method,
+            #     stream=req.stream,
+            # )
             # import time
             # time.sleep(1)
-            # response = req.text + req.method
+            response = req.text + req.method
+            await asyncio.sleep(5)
             return PostSearchResponse(text=response)
     except (BadRequestException, UnauthorizedException) as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)

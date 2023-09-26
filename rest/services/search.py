@@ -1,4 +1,6 @@
 import tiktoken
+from typing import AsyncGenerator
+import asyncio
 
 from ..core.settings import settings
 from ..clients.openai import OpenaiClient
@@ -58,6 +60,11 @@ max_num_tokens = {
 }
 
 
+async def async_wrapper(external_func, kwargs):
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, lambda: external_func(**kwargs))
+
+
 class SearchService:
 
     def __init__(
@@ -68,33 +75,55 @@ class SearchService:
         self.openai_client = OpenaiClient()
         self.qdrant_client = QdrantClient(host=qdrant_host, port=qdrant_port)
 
-    def suggest_relevant_dandisets(
+    async def suggest_relevant_dandisets(
         self, 
         user_input: str,
         collection_name: str,
         model: str = "gpt-3.5-turbo", 
         method: int = 1,
         stream: bool = False,
-    ) -> PostSearchResponse:
+    ) -> AsyncGenerator[str, None]:#PostSearchResponse:
         if method == "simple":
-            ordered_similarity_results = self.qdrant_client.query_from_user_input(
-                text=user_input, 
-                collection_name=collection_name, 
-                top_k=10
+            ordered_similarity_results = await async_wrapper(
+                self.qdrant_client.query_from_user_input,
+                dict(
+                    text=user_input, 
+                    collection_name=collection_name, 
+                    top_k=6
+                )
             )
         elif method == "keywords":
-            keywords = self.openai_client.keywords_extraction(user_input=user_input)
+            keywords = await async_wrapper(
+                self.openai_client.keywords_extraction,
+                dict(user_input=user_input)
+            )
             keywords_2 = self.openai_client.prepare_keywords_for_semantic_search(keywords)
-            ordered_similarity_results = self.qdrant_client.query_all_keywords(
-                keywords=keywords_2, 
-                collection_name=collection_name,
-                top_k=10
+            # ordered_similarity_results = self.qdrant_client.query_all_keywords(
+            #     keywords=keywords_2, 
+            #     collection_name=collection_name,
+            #     top_k=10
+            # )
+            ordered_similarity_results = await async_wrapper(
+                self.qdrant_client.query_from_user_input,
+                dict(
+                    text=" ".join(keywords_2), 
+                    collection_name=collection_name, 
+                    top_k=6
+                )
             )
         else:
             raise ValueError("method must be 1 or 2")
-        dandisets_text = self.openai_client.add_ordered_similarity_results_to_prompt(similarity_results=ordered_similarity_results)
-        prompt = self.prepare_prompt(user_input=user_input, dandisets_text=dandisets_text, model=model)
-        return self.openai_client.get_llm_chat_answer(prompt, model=model, stream=stream)
+        dandisets_text = await async_wrapper(
+            self.openai_client.add_ordered_similarity_results_to_prompt,
+            dict(similarity_results=ordered_similarity_results)
+        )
+        prompt = await async_wrapper(
+            self.prepare_prompt,
+            dict(user_input=user_input, dandisets_text=dandisets_text, model=model)
+        )
+        # prompt = "say hello world or something simple with 100 words"
+        async for result in self.openai_client.get_llm_chat_answer(prompt, model=model, stream=stream):
+            yield result
     
     def prepare_prompt(
         self, 

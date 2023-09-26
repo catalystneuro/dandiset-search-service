@@ -72,7 +72,6 @@ class QdrantClient:
                 results[dandiset_id] = score
             else:
                 results[dandiset_id] += score
-        #     print(f'{sr.payload["dandiset_id"]} \n{sr.payload["text_content"]} \n{sr.score} \n')
         return self.get_top_scores(results)
 
 
