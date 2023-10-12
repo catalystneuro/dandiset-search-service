@@ -9,3 +9,4 @@ langchain==0.0.218  # TODO - update this
 dandi==0.56.2
 dandischema==0.8.4
 gunicorn
+urllib3==1.26.17

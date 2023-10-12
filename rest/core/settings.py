@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     VERSION: str = "0.1.0"
     APP_TITLE: str = "Dandiset Search"
 
-    QDRANT_HOST: str = os.environ.get('QDRANT_HOST', "http://localhost")
+    QDRANT_HOST: str = os.environ.get('QDRANT_HOST', "http://qdrant")
     QDRANT_PORT: int = safe_int(os.environ.get('QDRANT_PORT'), 6333)
     QDRANT_COLLECTION_NAME: str = os.environ.get('QDRANT_COLLECTION_NAME', "dandi_collection")
     QDRANT_VECTOR_SIZE: int = safe_int(os.environ.get('QDRANT_VECTOR_SIZE'), 1536)
