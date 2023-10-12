@@ -2,10 +2,10 @@ fastapi==0.103.1
 pydantic==1.10.12
 uvicorn==0.23.2
 openai==0.28.0
-qdrant-client==1.5.4
+qdrant-client==1.6.0
 tiktoken==0.5.1
 langchain==0.0.218  # TODO - update this
 # langchain==0.0.300
-dandi==0.56.1
+dandi==0.56.2
 dandischema==0.8.4
 gunicorn
