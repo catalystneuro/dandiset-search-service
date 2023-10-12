@@ -91,8 +91,8 @@ class OpenaiClient:
             temperature=0
         )
         chain = create_extraction_chain(schema, llm)
-        keywords_list = chain.run(user_input)
-        return self.prepare_keywords_for_semantic_search(keywords_list)
+        keywords_extracted = list(chain.run(user_input))
+        return self.prepare_keywords_for_semantic_search(keywords_extracted)
 
 
     def prepare_keywords_for_semantic_search(self, keywords_list: list) -> list:
