@@ -92,6 +92,8 @@ class OpenaiClient:
         )
         chain = create_extraction_chain(schema, llm)
         keywords_extracted = list(chain.run(user_input))
+        if any(isinstance(item, str) for item in keywords_extracted):
+            keywords_extracted = [{key: ""} for key in schema["properties"]]
         return self.prepare_keywords_for_semantic_search(keywords_extracted)
 
 
