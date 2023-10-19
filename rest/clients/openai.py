@@ -92,15 +92,24 @@ class OpenaiClient:
         )
         chain = create_extraction_chain(schema, llm)
         keywords_extracted = list(chain.run(user_input))
+
+        # Temporary fallback to extracting nouns (if no schema-related keywords found)
         if any(isinstance(item, str) for item in keywords_extracted):
-            keywords_extracted = [{key: ""} for key in schema["properties"]]
+            # import nltk 
+            # nltk.download(['punkt', 'averaged_perceptron_tagger'])
+            # words = nltk.word_tokenize(user_input)
+            # pos_tags = nltk.pos_tag(words)
+            # keywords_extracted = [noun for noun, tag in pos_tags if tag.startswith("N")]
+            # return keywords_extracted
+            return list(set(user_input.split()))
+
         return self.prepare_keywords_for_semantic_search(keywords_extracted)
 
 
     def prepare_keywords_for_semantic_search(self, keywords_list: list) -> list:
         keywords_set = set()
         for obj in keywords_list:
-            for k, v in obj.items():
+            for _, v in obj.items():
                 if v:
                     keywords_set.add(v.lower())
         return list(keywords_set)
