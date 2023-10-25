@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body, html {
+                height: 100%;
+                margin: 0;
+                overflow: hidden;
+            }
+
+            .container {
+                display: flex;
+                height: 100%;
+            }
+
+            .tab {
+                display: none;
+            }
+
+            .button-container {
+                width: 50%;
+                overflow-y: auto;
+                padding: 0;
+                margin: 0;
+                box-sizing: border-box;
+                border: 1px black solid;
+                position: absolute;
+                top: 0;
+                right: 0;
+                background: white;
+                height: 110px;
+                opacity: 1; /* set to 0 for testing */
+            }
+
+            .button-row {
+                display: flex;
+                flex-wrap: wrap;
+                height: 50%;
+            }
+
+            .tabButton {
+                flex: 1;
+                text-align: center;
+                background-color: white;
+                color: black;
+                border: 1px black solid;
+                cursor: pointer;
+                font-weight: bold;
+                font-family: sans-serif;
+            }
+
+            .tabButton:hover {
+                background-color: #D3D3D3;
+            }
+
+            .tabButton.active {
+                background-color: green;
+                color: white;
+            }
+
+            .centered-text {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+                text-align: center;
+            }
+
+            iframe {
+                border: 1px solid black;
+                max-height: 100%;
+                width: 50%;
+            }
+
+            #increase-left-size {
+                left: 50%;
+                position: absolute;
+                bottom: 0px;
+                border-radius: 0 50% 0 0;
+                background-color: black;
+                color: white;
+                font-weight: bolder;
+                border: none;
+                font-size: 20px;
+                width: 55px;
+                height: 55px;
+                opacity: 0.98;
+            }
+
+            #increase-right-size {
+                right: 50%;
+                position: absolute;
+                bottom: 0px;
+                border-radius: 50% 0 0 0;
+                background-color: black;
+                color: white;
+                font-weight: bolder;
+                border: none;
+                font-size: 20px;
+                width: 55px;
+                height: 55px;
+                opacity: 0.98;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+                <iframe id="leftFrame" title="True Rank Response Form" onload="window.parent.scrollTo(0,0)" allowtransparency="true" allowfullscreen="true" allow="geolocation; microphone; camera" src="https://form.jotform.com/232963492422055" frameborder="0" scrolling="yes"></iframe>            
+                <div class="button-container">
+                    <div class="button-row">
+                        <button class="tabButton" onclick="showTab(0)">000574/draft</button>
+                        <button class="tabButton" onclick="showTab(1)">000576/draft</button>
+                        <button class="tabButton" onclick="showTab(2)">000458/0.230317.0039</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="tabButton" onclick="showTab(3)">000623/draft</button>
+                        <button class="tabButton" onclick="showTab(4)">000041/0.210812.1515</button>
+                        <button class="tabButton" onclick="showTab(5)">000540/0.230515.0530</button>
+                    </div>
+                </div>  
+                <iframe id="rightFrame" class="start-tab" src="data:text/html;charset=utf-8,<html><head></head><body style='text-align:center;'><p style='font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100%;text-align:center;'>Choose a dandiset above to open a view<p></body></html>"></iframe>
+                <iframe id="rightFrame2" class="tab" src="https://dandiarchive.org/dandiset/000574/draft"></iframe>
+                <iframe id="rightFrame3" class="tab" src="https://dandiarchive.org/dandiset/000576/draft"></iframe>
+                <iframe id="rightFrame4" class="tab" src="https://dandiarchive.org/dandiset/000458/0.230317.0039"></iframe>
+                <iframe id="rightFrame5" class="tab" src="https://dandiarchive.org/dandiset/000623/draft"></iframe>
+                <iframe id="rightFrame6" class="tab" src="https://dandiarchive.org/dandiset/000041/0.210812.1515"></iframe>
+                <iframe id="rightFrame7" class="tab" src="https://dandiarchive.org/dandiset/000540/0.230515.0530"></iframe>
+                <button id="increase-left-size">&gt;</button>
+                <button id="increase-right-size">&lt;</button>
+        </div>
+        <script>
+            document.getElementById("increase-left-size").addEventListener("click", function() {
+                var left_frame = document.getElementById('leftFrame');
+                var right_frame = document.getElementById("rightFrame");
+                var right_frame2 = document.getElementById("rightFrame2");
+                var right_frame3 = document.getElementById("rightFrame3");
+                var right_frame4 = document.getElementById("rightFrame4");
+                var right_frame5 = document.getElementById("rightFrame5");
+                var right_frame6 = document.getElementById("rightFrame6");
+                var right_frame7 = document.getElementById("rightFrame7");
+                var buttons = document.querySelector(".button-container");
+                var left_button = document.getElementById('increase-left-size');
+                var right_button = document.getElementById("increase-right-size");
+
+                var computedStyle = window.getComputedStyle(left_frame);
+                var currentWidth = parseInt(computedStyle.getPropertyValue('width'));
+                var containerWidth = parseInt(left_frame.parentElement.clientWidth);
+                var widthInPercentage = (currentWidth / containerWidth) * 100;
+
+                if (widthInPercentage < 75) {
+                    let newWidth = Math.round(widthInPercentage + 10);
+                    left_frame.style.width = `${newWidth}%`;
+                    let newRightWidth = 100 - newWidth;
+                    right_frame.style.width = `${newRightWidth}%`;
+                    right_frame2.style.width = `${newRightWidth}%`;
+                    right_frame3.style.width = `${newRightWidth}%`;
+                    right_frame4.style.width = `${newRightWidth}%`;
+                    right_frame5.style.width = `${newRightWidth}%`;
+                    right_frame6.style.width = `${newRightWidth}%`;
+                    right_frame7.style.width = `${newRightWidth}%`;
+                    buttons.style.width = `${newRightWidth}%`;
+                    left_button.style.left = `${newWidth}%`;
+                    right_button.style.right = `${100 - newWidth}%`;
+                }
+            });
+
+            document.getElementById("increase-right-size").addEventListener("click", function() {
+                var left_frame = document.getElementById('leftFrame');
+                var right_frame = document.getElementById("rightFrame");
+                var right_frame2 = document.getElementById("rightFrame2");
+                var right_frame3 = document.getElementById("rightFrame3");
+                var right_frame4 = document.getElementById("rightFrame4");
+                var right_frame5 = document.getElementById("rightFrame5");
+                var right_frame6 = document.getElementById("rightFrame6");
+                var right_frame7 = document.getElementById("rightFrame7");
+                var buttons = document.querySelector(".button-container");
+                var left_button = document.getElementById('increase-left-size');
+                var right_button = document.getElementById("increase-right-size");
+
+                var computedStyle = window.getComputedStyle(right_frame);
+                var currentWidth = parseInt(computedStyle.getPropertyValue('width'));
+                var containerWidth = parseInt(right_frame.parentElement.clientWidth);
+                var widthInPercentage = (currentWidth / containerWidth) * 100;
+                
+                if (widthInPercentage < 75) {
+                    let newWidth = Math.round(widthInPercentage + 10);
+                    left_frame.style.width = `${100 - newWidth}%`;
+                    right_frame.style.width = `${newWidth}%`;
+                    right_frame2.style.width = `${newWidth}%`;
+                    right_frame3.style.width = `${newWidth}%`;
+                    right_frame4.style.width = `${newWidth}%`;
+                    right_frame5.style.width = `${newWidth}%`;
+                    right_frame6.style.width = `${newWidth}%`;
+                    right_frame7.style.width = `${newWidth}%`;
+                    buttons.style.width = `${newWidth}%`;
+                    left_button.style.left = `${100 - newWidth}%`;
+                    right_button.style.right = `${newWidth}%`;
+                }
+            });
+        </script>
+        <script>
+            // show a tab
+            function showTab(tabIndex, flag) {
+                var tabs = document.querySelectorAll('.tab');
+                var startTab = document.querySelector('.start-tab');
+                var tabButtons = document.querySelectorAll('.tabButton');
+                
+                var activeTab;
+                for (var i = 0; i < tabs.length; i++) {
+                    tabs[i].style.display = "none";
+                    if (tabButtons[i].classList.contains('active')) {
+                        activeTab = tabs[i]
+                    }
+                    tabButtons[i].classList.remove('active');
+                }
+
+                if (activeTab == tabs[tabIndex] && tabIndex != -1) {
+                    startTab.style.display = "block";
+                }
+                else {
+                    if (tabIndex != -1) {
+                        tabs[tabIndex].style.display = "block";
+                        tabButtons[tabIndex].classList.add('active');
+                        startTab.style.display = "none";
+                    } 
+                }
+            }
+    
+            // show the initial start tab
+            showTab(-1)
+        </script>
+        <script type = "text/javascript" >
+            var ifr = document.getElementById("JotFormIFrame-232963492422055");
+            if (ifr) {
+                var src = ifr.src;
+                var iframeParams = [];
+                if (window.location.href && window.location.href.indexOf("?") > -1) {
+                    iframeParams = iframeParams.concat(window.location.href.substr(window.location.href.indexOf("?") + 1).split('&'));
+                }
+                if (src && src.indexOf("?") > -1) {
+                    iframeParams = iframeParams.concat(src.substr(src.indexOf("?") + 1).split("&"));
+                    src = src.substr(0, src.indexOf("?"))
+                }
+                iframeParams.push("isIframeEmbed=1");
+                ifr.src = src + "?" + iframeParams.join('&');
+            }
+            window.handleIFrameMessage = function(e) {
+                if (typeof e.data === 'object') {
+                    return;
+                }
+                var args = e.data.split(":");
+                if (args.length > 2) {
+                    iframe = document.getElementById("JotFormIFrame-" + args[(args.length - 1)]);
+                } else {
+                    iframe = document.getElementById("JotFormIFrame");
+                }
+                if (!iframe) {
+                    return;
+                }
+                switch (args[0]) {
+                    case "scrollIntoView":
+                        iframe.scrollIntoView();
+                        break;
+                    case "setHeight":
+                        iframe.style.height = args[1] + "px";
+                        if (!isNaN(args[1]) && parseInt(iframe.style.minHeight) > parseInt(args[1])) {
+                            iframe.style.minHeight = args[1] + "px";
+                        }
+                        break;
+                    case "collapseErrorPage":
+                        if (iframe.clientHeight > window.innerHeight) {
+                            iframe.style.height = window.innerHeight + "px";
+                        }
+                        break;
+                    case "reloadPage":
+                        window.location.reload();
+                        break;
+                    case "loadScript":
+                        if (!window.isPermitted(e.origin, ['jotform.com', 'jotform.pro'])) {
+                            break;
+                        }
+                        var src = args[1];
+                        if (args.length > 3) {
+                            src = args[1] + ':' + args[2];
+                        }
+                        var script = document.createElement('script');
+                        script.src = src;
+                        script.type = 'text/javascript';
+                        document.body.appendChild(script);
+                        break;
+                    case "exitFullscreen":
+                        if (window.document.exitFullscreen) window.document.exitFullscreen();
+                        else if (window.document.mozCancelFullScreen) window.document.mozCancelFullScreen();
+                        else if (window.document.mozCancelFullscreen) window.document.mozCancelFullScreen();
+                        else if (window.document.webkitExitFullscreen) window.document.webkitExitFullscreen();
+                        else if (window.document.msExitFullscreen) window.document.msExitFullscreen();
+                        break;
+                }
+                var isJotForm = (e.origin.indexOf("jotform") > -1) ? true : false;
+                if (isJotForm && "contentWindow" in iframe && "postMessage" in iframe.contentWindow) {
+                    var urls = {
+                        "docurl": encodeURIComponent(document.URL),
+                        "referrer": encodeURIComponent(document.referrer)
+                    };
+                    iframe.contentWindow.postMessage(JSON.stringify({
+                        "type": "urls",
+                        "value": urls
+                    }), "*");
+                }
+            };
+            window.isPermitted = function(originUrl, whitelisted_domains) {
+                var url = document.createElement('a');
+                url.href = originUrl;
+                var hostname = url.hostname;
+                var result = false;
+                if (typeof hostname !== 'undefined') {
+                    whitelisted_domains.forEach(function(element) {
+                        if (hostname.slice((-1 * element.length - 1)) === '.'.concat(element) || hostname === element) {
+                            result = true;
+                        }
+                    });
+                    return result;
+                }
+            };
+            if (window.addEventListener) {
+                window.addEventListener("message", handleIFrameMessage, false);
+            } else if (window.attachEvent) {
+                window.attachEvent("onmessage", handleIFrameMessage);
+            } 
+        </script>
+        <script type="text/javascript">
+            var ifr = document.getElementById("leftFrame");
+            if (ifr) {
+                var field = "?chosenQuery=Find%20EEG%20datasets%20with%20a%20focus%20on%20sleep%20patterns%20and%20insomnia%20studies.&typeA10=%3Cspan%3E%3Ca%20href%3D%27https%3A//dandiarchive.org/dandiset/000574/draft%27%20target%3D%27dandiFrame%27%3EDANDI%3A000574/draft%3C/a%3E%3Cbr%3E%3Cb%3E%28Name%29%3C/b%3E%20Dataset%20of%20human%20medial%20temporal%20lobe%20neurons%E2%80%9A%20scalp%20and%20intracranial%20EEG%20during%20a%20verbal%20working%20memory%20task%3C/span%3E,%3Cspan%3E%3Ca%20href%3D%27https%3A//dandiarchive.org/dandiset/000576/draft%27%20target%3D%27dandiFrame%27%3EDANDI%3A000576/draft%3C/a%3E%3Cbr%3E%3Cb%3E%28Name%29%3C/b%3E%20Dataset%20of%20neurons%20and%20intracranial%20EEG%20from%20human%20amygdala%20during%20aversive%20dynamic%20visual%20stimulation%3C/span%3E,%3Cspan%3E%3Ca%20href%3D%27https%3A//dandiarchive.org/dandiset/000458/0.230317.0039%27%20target%3D%27dandiFrame%27%3EDANDI%3A000458/0.230317.0039%3C/a%3E%3Cbr%3E%3Cb%3E%28Name%29%3C/b%3E%20Simultaneous%20electroencephalography%E2%80%9A%20extracellular%20electrophysiology%E2%80%9A%20and%20cortical%20electrical%20stimulation%20in%20head-fixed%20mice%3C/span%3E,%3Cspan%3E%3Ca%20href%3D%27https%3A//dandiarchive.org/dandiset/000623/draft%27%20target%3D%27dandiFrame%27%3EDANDI%3A000623/draft%3C/a%3E%3Cbr%3E%3Cb%3E%28Name%29%3C/b%3E%20Multimodal%20brain%20responses%20during%20movie%20watching%EF%BC%9A%20single-neuron%E2%80%9A%20intracranial%20EEG%E2%80%9A%20and%20fMRI%20in%20human%20patients%3C/span%3E,%3Cspan%3E%3Ca%20href%3D%27https%3A//dandiarchive.org/dandiset/000041/0.210812.1515%27%20target%3D%27dandiFrame%27%3EDANDI%3A000041/0.210812.1515%3C/a%3E%3Cbr%3E%3Cb%3E%28Name%29%3C/b%3E%20Network%20Homeostasis%20and%20State%20Dynamics%20of%20Neocortical%20Sleep%3C/span%3E,%3Cspan%3E%3Ca%20href%3D%27https%3A//dandiarchive.org/dandiset/000540/0.230515.0530%27%20target%3D%27dandiFrame%27%3EDANDI%3A000540/0.230515.0530%3C/a%3E%3Cbr%3E%3Cb%3E%28Name%29%3C/b%3E%20Dataset%20for%EF%BC%9A%20A%20change%20in%20behavioral%20state%20switches%20the%20pattern%20of%20motor%20output%20that%20underlies%20rhythmic%20head%20and%20orofacial%20movements%3C/span%3E";
+                ifr.src += field;
+            }
+        </script>
+        <script>
+                document.getElementById("leftFrame").onload = function () {
+                    var leftDocument = document.getElementById("leftFrame").contentWindow.document;
+                    var leftLinks = leftDocument.getElementsByTagName("a");
+        
+                    for (var i = 0; i < leftLinks.length; i++) {
+                        leftLinks[i].target = "dandiFrame";
+                    }
+                }
+        </script>
+    </body>
+</html>
